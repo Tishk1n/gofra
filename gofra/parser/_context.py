@@ -35,6 +35,9 @@ class ParserContext:
 
     current_operator: int = field(default=0)
 
+    # Новый список для extern-функций
+    extern_functions: set[str] = field(default_factory=set)
+
     def __post_init__(self) -> None:
         if not self.tokens:
             raise ParserEmptyInputTokensError

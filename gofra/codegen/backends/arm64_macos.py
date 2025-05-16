@@ -310,26 +310,31 @@ def _write_executable_body_instruction_set(
                 assert isinstance(operator.operand, str)
 
                 function_name = operator.operand
-                function = program_context.functions[function_name]
-
-                if function.is_externally_defined:
-                    # @kirillzhosul: We are reversing arg registers loading end to start
-                    # As loading head of the stack means loading the last argument
-                    for arg_register in range(
-                        len(function.type_contract_in) - 1,
-                        -1,
-                        -1,
-                    ):
-                        context.write("ldr X%s, [SP]" % arg_register)
-                        context.write("add SP, SP, #16")
-
-                context.write("bl %s" % function_name)
-
-                if function.type_contract_out:
-                    context.write(
-                        "sub SP, SP, #16",
-                        "str X0, [SP]",
-                    )
+                if function_name in program_context.functions:
+                    function = program_context.functions[function_name]
+                    if function.is_externally_defined:
+                        for arg_register in range(
+                            len(function.type_contract_in) - 1,
+                            -1,
+                            -1,
+                        ):
+                            context.write("ldr X%s, [SP]" % arg_register)
+                            context.write("add SP, SP, #16")
+                    context.write("bl %s" % function_name)
+                    if function.type_contract_out:
+                        context.write(
+                            "sub SP, SP, #16",
+                            "str X0, [SP]",
+                        )
+                elif function_name in getattr(program_context, 'extern_functions', set()):
+                    # MVP: только один аргумент (X0), можно расширить
+                    context.write("ldr X0, [SP]")
+                    context.write("add SP, SP, #16")
+                    context.write("bl %s" % function_name)
+                    context.write("sub SP, SP, #16")
+                    context.write("str X0, [SP]")
+                else:
+                    raise KeyError(function_name)
             case _:
                 raise NotImplementedError(
                     "Operator %s is not implemented in ARM64 MacOS backend"

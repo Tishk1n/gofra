@@ -1,0 +1,3 @@
+extern _puts
+
+"Hello, FFI!\n" call _puts 

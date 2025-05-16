@@ -172,7 +172,15 @@ def validate_type_safety(
                     operator=operator,
                 )
             case OperatorType.CALL:
-                function = program_context.functions[str(operator.operand)]
+                func_name = str(operator.operand)
+                if func_name in getattr(program_context, 'extern_functions', set()):
+                    # Для extern-функций считаем, что они принимают и возвращают int (MVP)
+                    # Можно расширить для поддержки других типов
+                    context.raise_for_enough_arguments(operator, required_args=1)
+                    context.pop_and_raise_for_argument_type(GofraType.INTEGER, operator=operator)
+                    context.push_types(GofraType.INTEGER)
+                    continue
+                function = program_context.functions[func_name]
 
                 context.raise_for_enough_arguments(
                     operator,

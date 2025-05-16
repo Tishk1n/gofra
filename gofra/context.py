@@ -20,3 +20,5 @@ class ProgramContext:
     # Resulting operators from parsing
     operators: MutableSequence[Operator] = field(default_factory=lambda: list())  # noqa: C408
     functions: MutableMapping[str, Function] = field(default_factory=lambda: dict())  # noqa: C408
+    # Новый список для extern-функций
+    extern_functions: set[str] = field(default_factory=set)

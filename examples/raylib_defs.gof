@@ -1,0 +1,5 @@
+include "std.gof"
+
+// Определяем константы цветов
+macro RAYWHITE 0xFFFFFFFF end
+macro BLACK 0xFF000000 end 

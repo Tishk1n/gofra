@@ -131,7 +131,15 @@ def _consume_keyword_token(context: ParserContext, token: Token) -> None:
             return _consume_macro_definition_into_token(context, token)
         case Keyword.INCLUDE:
             return _unpack_include_from_token(context, token)
-        case Keyword.INLINE | Keyword.EXTERN | Keyword.FUNCTION:
+        case Keyword.EXTERN:
+            if context.tokens_exhausted():
+                raise Exception("Extern keyword must be followed by function name")
+            extern_name_token = context.tokens.pop()
+            if extern_name_token.type != TokenType.WORD:
+                raise Exception("Extern function name must be a word")
+            context.extern_functions.add(extern_name_token.text)
+            return
+        case Keyword.INLINE | Keyword.FUNCTION:
             return _unpack_function_definition_from_token(context, token)
         case Keyword.CALL:
             return _unpack_function_call_from_token(context, token)
@@ -205,10 +213,10 @@ def _unpack_function_call_from_token(context: ParserContext, token: Token) -> No
         raise NotImplementedError
 
     target_function = context.functions.get(extern_call_name)
-    if not target_function:
+    if not target_function and extern_call_name not in context.extern_functions:
         raise NotImplementedError
 
-    if target_function.emit_inline_body:
+    if target_function and target_function.emit_inline_body:
         _try_unpack_macro_or_inline_function_from_token(context, extern_call_name_token)
         return
 

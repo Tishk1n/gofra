@@ -1,0 +1,23 @@
+include "std.gof"
+include "raylib_defs.gof"
+
+// Инициализация окна
+extern InitWindow
+extern DrawText
+extern CloseWindow
+
+800 450 "Raylib Text Example" InitWindow
+60 SetTargetFPS
+
+// Основной цикл
+while WindowShouldClose false == do
+    BeginDrawing
+    RAYWHITE ClearBackground
+    
+    // Вывод текста
+    "Hello from Raylib!" 190 200 20 BLACK DrawText
+    
+    EndDrawing
+end
+
+CloseWindow 

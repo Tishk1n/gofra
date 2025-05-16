@@ -22,6 +22,7 @@ def process_input_file(
     context = ProgramContext(
         functions=parse_context.functions,
         operators=parse_context.operators,
+        extern_functions=getattr(parse_context, 'extern_functions', set()),
     )
 
     if optimize:
